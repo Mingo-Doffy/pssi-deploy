@@ -21,6 +21,49 @@ router.get('/questions', authenticate, (req, res) => {
 router.get('/evaluations/history', authenticate, async (req, res) => {
   try {
     const { entite_id } = req.user;
+    const { page = 1, limit = 10 } = req.query;
+    const offset = (page - 1) * limit;
+    
+    const [evaluations, total] = await Promise.all([
+      db.query(
+        `SELECT e.*, u.nom as evaluateur
+         FROM evaluation e
+         JOIN utilisateur u ON e.utilisateur_id = u.utilisateur_id
+         WHERE e.entite_id = ?
+         ORDER BY e.date_evaluation DESC
+         LIMIT ? OFFSET ?`,
+        [3, 10, 0] // <-- Valeurs statiques
+      ),
+      db.queryOne(
+        `SELECT COUNT(*) as total 
+         FROM evaluation 
+         WHERE entite_id = ?`,
+        [entite_id]
+      )
+    ]);
+
+    res.json({
+      success: true,
+      data: evaluations,
+      pagination: {
+        total: total.total,
+        page: parseInt(page),
+        limit: parseInt(limit),
+        totalPages: Math.ceil(total.total / limit)
+      }
+    });
+  } catch (error) {
+    console.error("Erreur récupération historique:", error);
+    res.status(500).json({ 
+      success: false,
+      error: 'SERVER_ERROR',
+      message: "Erreur serveur" 
+    });
+  }
+});
+/*router.get('/evaluations/history', authenticate, async (req, res) => {
+  try {
+    const { entite_id } = req.user;
     const page = parseInt(req.query.page, 10) || 1;
     const limit = parseInt(req.query.limit, 10) || 10;
     const offset = (page - 1) * limit;
@@ -61,7 +104,7 @@ router.get('/evaluations/history', authenticate, async (req, res) => {
       message: "Erreur serveur"
     });
   }
-});
+});*/
 
 router.get('/evaluations/history/details',
   authenticate,
