@@ -6,23 +6,15 @@ console.log("MYSQLHOST:", process.env.MYSQLHOST);
 console.log("MYSQLPORT:", process.env.MYSQLPORT);
 console.log("MYSQLUSER:", process.env.MYSQLUSER);
 console.log("MYSQLPASSWORD:", process.env.MYSQLPASSWORD);
-console.log("MYSQLDATABASE:", process.env.MYSQLDATABASE);
-
-console.log("transition");
-
-console.log("MYSQL_HOST:", process.env.MYSQL_HOST);
-console.log("MYSQL_PORT:", process.env.MYSQL_PORT);
-console.log("MYSQL_USER:", process.env.MYSQL_USER);
-console.log("MYSQL_PASSWORD:", process.env.MYSQL_PASSWORD);
 console.log("MYSQL_DATABASE:", process.env.MYSQL_DATABASE);
 
 
 
 const pool = mysql.createPool({
-  host: process.env.MYSQL_HOST,
-  port: process.env.MYSQL_PORT,
-  user: process.env.MYSQL_USER,
-  password: process.env.MYSQL_PASSWORD,
+  host: process.env.MYSQLHOST,
+  port: process.env.MYSQLPORT,
+  user: process.env.MYSQLUSER,
+  password: process.env.MYSQLPASSWORD,
   database: process.env.MYSQL_DATABASE,
   waitForConnections: true,
   connectionLimit: parseInt(process.env.DB_CONNECTION_LIMIT) || 10, // Valeur par défaut si non définie
