@@ -198,6 +198,11 @@ function ProfileTab({ user }) {
           api.get('/evaluations/stats'),
           api.get('/evaluations/history')
         ]);
+
+// Ajoutez des logs pour déboguer
+console.log('Stats response:', statsResponse.data);
+console.log('History response:', historyResponse.data);
+
         setStats(statsResponse.data);
         setHistory(historyResponse.data);
       } catch (err) {
