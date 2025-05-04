@@ -346,52 +346,101 @@ console.log('History response:', historyResponse.data);
 }*/
 function ProfileTab({ user }) {
   const theme = useTheme();
-  const [stats, setStats] = useState(null);
+  const [stats, setStats] = useState({
+    total_evaluations: 0,
+    average_score: 0,
+    first_evaluation: null,
+    last_evaluation: null
+  });
   const [history, setHistory] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    const fetchStats = async () => {
+    const fetchData = async () => {
       try {
         setLoading(true);
         setError(null);
         
-        const [statsResponse, historyResponse] = await Promise.all([
-          api.get('/evaluations/stats'),
-          api.get('/evaluations/history')
-        ]);
-        
-        console.log('Stats response:', statsResponse.data);
-        console.log('History response:', historyResponse.data);
-        
-        // Adaptation à la structure actuelle de l'API
-        setStats({
-          average_score: statsResponse.data.average_score || 0,
-          // Valeurs par défaut pour les champs manquants
+        // On charge d'abord l'historique qui fonctionne
+        const historyResponse = await api.get('/evaluations/history');
+        const evaluations = historyResponse.data || [];
+        setHistory(evaluations);
+
+        // On essaie de récupérer les stats
+        let statsData = {
           total_evaluations: 0,
+          average_score: 0,
           first_evaluation: null,
           last_evaluation: null
-        });
-        
-        setHistory(historyResponse.data || []);
+        };
+
+        try {
+          const statsResponse = await api.get('/evaluations/stats');
+          if (statsResponse.data && statsResponse.data.total_evaluations !== undefined) {
+            statsData = statsResponse.data;
+          } else {
+            // Calcul des stats côté frontend si l'API ne les fournit pas
+            statsData = calculateStatsFromHistory(evaluations);
+          }
+        } catch (statsError) {
+          console.warn("Erreur stats API, calcul côté frontend", statsError);
+          statsData = calculateStatsFromHistory(evaluations);
+        }
+
+        setStats(statsData);
+
       } catch (err) {
-        console.error("Erreur chargement stats:", err);
-        setError(err.message || "Erreur lors du chargement des statistiques");
+        console.error("Erreur chargement données:", err);
+        setError(err.response?.data?.message || err.message || "Erreur lors du chargement des données");
       } finally {
         setLoading(false);
       }
     };
-    
-    fetchStats();
+
+    fetchData();
   }, []);
 
+  // Fonction pour calculer les stats à partir de l'historique
+  const calculateStatsFromHistory = (evaluations) => {
+    if (!evaluations || evaluations.length === 0) {
+      return {
+        total_evaluations: 0,
+        average_score: 0,
+        first_evaluation: null,
+        last_evaluation: null
+      };
+    }
+
+    const sorted = [...evaluations].sort((a, b) => 
+      new Date(a.date_evaluation) - new Date(b.date_evaluation)
+    );
+
+    return {
+      total_evaluations: evaluations.length,
+      average_score: evaluations.reduce((sum, evaluation) => sum + (evaluation.score || 0), 0) / evaluations.length,
+      first_evaluation: sorted[0].date_evaluation,
+      last_evaluation: sorted[sorted.length - 1].date_evaluation
+    };
+  };
+
+  const formatDate = (dateString) => {
+    if (!dateString) return 'N/A';
+    try {
+      return new Date(dateString).toLocaleDateString('fr-FR');
+    } catch {
+      return 'N/A';
+    }
+  };
+
+  // Préparation des données pour le graphique
   const lineData = history.length > 0 ? [
     { date: "Début", score: 0 },
-    ...history.sort((a, b) => new Date(a.date_evaluation) - new Date(b.date_evaluation))
+    ...history
+      .sort((a, b) => new Date(a.date_evaluation) - new Date(b.date_evaluation))
       .map(evaluation => ({
-        date: new Date(evaluation.date_evaluation).toLocaleDateString('fr-FR'),
-        score: evaluation.score
+        date: formatDate(evaluation.date_evaluation),
+        score: evaluation.score || 0
       }))
   ] : [];
 
