@@ -1,0 +1,214 @@
+[
+  {
+    "id": "leadership_gouvernance",
+    "name": "Leadership & gouvernance de la sécurité de l'information",
+    "questions": [
+      {
+        "id": "q1",
+        "text": "Une politique générale de sécurité des systèmes d'information est-elle élaborée ?",
+        "options": ["Oui", "Non", "En cours"],
+        "points": { "Oui": 10, "Non": 0, "En cours": 5 },
+        "suggestion": { "Non": "Élaborer une politique générale de sécurité des systèmes d'information.", "En cours": "Finaliser l'élaboration de la politique générale de sécurité." },
+        "explanation": "Une politique formelle est le fondement de tout programme de sécurité de l'information."
+      },
+      {
+        "id": "q2",
+        "text": "Le ministre en charge de chaque département ministériel, le Président d'institution a-t-il signé la politique ?",
+        "options": ["Oui", "Non", "Partiellement"],
+        "points": { "Oui": 10, "Non": 0, "Partiellement": 5 },
+        "suggestion": { "Non": "Obtenir la signature de la politique par les autorités compétentes.", "Partiellement": "Compléter le processus de signature pour tous les départements." },
+        "explanation": "L'engagement de la direction est essentiel pour la légitimité de la politique."
+      },
+      {
+        "id": "q3",
+        "text": "La politique générale de sécurité de l'information est-elle affichée de manière visible aux entrées et dans les locaux des bâtiments ?",
+        "options": ["Oui", "Non", "Partiellement"],
+        "points": { "Oui": 10, "Non": 0, "Partiellement": 5 },
+        "suggestion": { "Non": "Afficher la politique dans les locaux pour sensibiliser le personnel.", "Partiellement": "Compléter l'affichage dans tous les locaux concernés." },
+        "explanation": "La visibilité de la politique renforce la sensibilisation à la sécurité."
+      },
+      {
+        "id": "q4",
+        "text": "Un ensemble de politiques en matière de sécurité de l'information a-t-il été défini ?",
+        "options": ["Oui, complet", "Partiellement", "Non"],
+        "points": { "Oui, complet": 10, "Partiellement": 5, "Non": 0 },
+        "suggestion": { "Non": "Développer un ensemble complet de politiques sectorielles.", "Partiellement": "Compléter les politiques manquantes." },
+        "explanation": "Des politiques spécifiques couvrant différents aspects de la sécurité sont nécessaires."
+      },
+      {
+        "id": "q5",
+        "text": "Les politiques ont-elles été approuvées par la direction ?",
+        "options": ["Oui", "Non", "En attente"],
+        "points": { "Oui": 10, "Non": 0, "En attente": 3 },
+        "suggestion": { "Non": "Soumettre les politiques à la direction pour approbation.", "En attente": "Suivre le processus d'approbation avec la direction." },
+        "explanation": "L'approbation formelle par la direction donne force exécutoire aux politiques."
+      },
+      {
+        "id": "q6",
+        "text": "Les politiques ont-elles été diffusées et communiquées aux agents et aux tiers concernés ?",
+        "options": ["Oui, à tous", "Partiellement", "Non"],
+        "points": { "Oui, à tous": 10, "Partiellement": 5, "Non": 0 },
+        "suggestion": { "Non": "Organiser une campagne de communication des politiques.", "Partiellement": "Étendre la diffusion à tous les concernés." },
+        "explanation": "La communication effective des politiques est cruciale pour leur mise en œuvre."
+      }
+    ]
+  },
+  {
+    "id": "organisation_securite",
+    "name": "Organisation de la sécurité de l'information",
+    "questions": [
+      {
+        "id": "q7",
+        "text": "Un Comité Sécurité de l'Information (CSI) est-il mis en place ?",
+        "options": ["Oui, fonctionnel", "Oui mais non actif", "Non"],
+        "points": { "Oui, fonctionnel": 10, "Oui mais non actif": 5, "Non": 0 },
+        "suggestion": { "Non": "Créer un Comité Sécurité de l'Information.", "Oui mais non actif": "Activer le CSI et planifier des réunions régulières." },
+        "explanation": "Le CSI est l'organe de pilotage de la sécurité de l'information."
+      },
+      {
+        "id": "q8",
+        "text": "Le Responsable de Sécurité de l'Information (RSSI) est-il désigné ?",
+        "options": ["Oui, formellement", "Oui mais non officialisé", "Non"],
+        "points": { "Oui, formellement": 10, "Oui mais non officialisé": 5, "Non": 0 },
+        "suggestion": { "Non": "Désigner un RSSI par décision formelle.", "Oui mais non officialisé": "Officialiser la désignation du RSSI." },
+        "explanation": "Le RSSI est responsable de la mise en œuvre de la politique de sécurité."
+      },
+      {
+        "id": "q9",
+        "text": "Les analystes de sécurité des systèmes d'information (ASSI) sont-ils désignés ?",
+        "options": ["Oui, en nombre suffisant", "Oui mais insuffisant", "Non"],
+        "points": { "Oui, en nombre suffisant": 10, "Oui mais insuffisant": 5, "Non": 0 },
+        "suggestion": { "Non": "Recruter ou former des ASSI.", "Oui mais insuffisant": "Renforcer l'équipe des ASSI." },
+        "explanation": "Les ASSI sont essentiels pour la mise en œuvre opérationnelle des mesures de sécurité."
+      }
+    ]
+  },
+  {
+    "id": "gestion_risques",
+    "name": "Gestion des risques liés à la sécurité du système d'information",
+    "questions": [
+      {
+        "id": "q10",
+        "text": "Une étude globale des risques de sécurité de l'information a-t-elle été réalisée ?",
+        "options": ["Oui, complète", "Partiellement", "Non"],
+        "points": { "Oui, complète": 10, "Partiellement": 5, "Non": 0 },
+        "suggestion": { "Non": "Lancer une étude complète des risques.", "Partiellement": "Compléter l'étude des risques." },
+        "explanation": "L'étude des risques est la base d'une gestion efficace de la sécurité."
+      },
+      {
+        "id": "q11",
+        "text": "Cette étude est documentée et comprend un résumé des activités suivantes : identification des actifs, menaces, vulnérabilités, évaluation des impacts ?",
+        "options": ["Oui, complet", "Partiellement", "Non"],
+        "points": { "Oui, complet": 10, "Partiellement": 5, "Non": 0 },
+        "suggestion": { "Non": "Documenter complètement l'étude des risques.", "Partiellement": "Compléter la documentation de l'étude." },
+        "explanation": "Une documentation complète permet un suivi et une mise à jour efficaces."
+      },
+      {
+        "id": "q12",
+        "text": "Les plans d'action définis dans le cadre de l'étude des risques sont-ils formellement approuvés par le comité sécurité de l'information (CSI) ?",
+        "options": ["Oui", "En cours", "Non"],
+        "points": { "Oui": 10, "En cours": 5, "Non": 0 },
+        "suggestion": { "Non": "Soumettre les plans d'action au CSI pour approbation.", "En cours": "Finaliser le processus d'approbation." },
+        "explanation": "L'approbation formelle engage la responsabilité du CSI dans la gestion des risques."
+      }
+    ]
+  },
+  {
+    "id": "securite_rh",
+    "name": "Sécurité des ressources humaines",
+    "questions": [
+      {
+        "id": "q13",
+        "text": "Une charte d'utilisation des ressources informatiques est-elle élaborée ?",
+        "options": ["Oui", "En cours", "Non"],
+        "points": { "Oui": 10, "En cours": 5, "Non": 0 },
+        "suggestion": { "Non": "Élaborer une charte d'utilisation des ressources informatiques.", "En cours": "Finaliser l'élaboration de la charte." },
+        "explanation": "La charte définit les règles d'usage acceptable des ressources informatiques."
+      },
+      {
+        "id": "q14",
+        "text": "Une charte d'utilisation des ressources informatiques est-elle diffusée ?",
+        "options": ["Oui, à tous", "Partiellement", "Non"],
+        "points": { "Oui, à tous": 10, "Partiellement": 5, "Non": 0 },
+        "suggestion": { "Non": "Diffuser la charte à l'ensemble du personnel.", "Partiellement": "Étendre la diffusion à tous les agents." },
+        "explanation": "La diffusion assure que tous les utilisateurs connaissent leurs obligations."
+      },
+      {
+        "id": "q15",
+        "text": "La charte d'utilisation est-elle signée par tous les agents et contresignée par le RSSI ?",
+        "options": ["Oui, pour tous", "Partiellement", "Non"],
+        "points": { "Oui, pour tous": 10, "Partiellement": 5, "Non": 0 },
+        "suggestion": { "Non": "Organiser la signature de la charte par tous les agents.", "Partiellement": "Compléter le processus de signature." },
+        "explanation": "La signature formalise l'engagement des agents à respecter la charte."
+      }
+    ]
+  },
+  {
+    "id": "gestion_actifs",
+    "name": "Gestion des actifs informationnels",
+    "questions": [
+      {
+        "id": "q16",
+        "text": "Un inventaire des ressources informatiques est-il réalisé ?",
+        "options": ["Oui, complet", "Partiellement", "Non"],
+        "points": { "Oui, complet": 10, "Partiellement": 5, "Non": 0 },
+        "suggestion": { "Non": "Lancer un inventaire complet des ressources informatiques.", "Partiellement": "Compléter l'inventaire des ressources." },
+        "explanation": "L'inventaire est la base de la gestion des actifs informationnels."
+      },
+      {
+        "id": "q17",
+        "text": "Un inventaire des ressources informatiques est-il mis à jour ?",
+        "options": ["Oui, régulièrement", "Occasionnellement", "Non"],
+        "points": { "Oui, régulièrement": 10, "Occasionnellement": 5, "Non": 0 },
+        "suggestion": { "Non": "Mettre en place un processus de mise à jour régulière.", "Occasionnellement": "Systématiser les mises à jour selon un calendrier défini." },
+        "explanation": "Un inventaire à jour reflète fidèlement le patrimoine informationnel."
+      },
+      {
+        "id": "q18",
+        "text": "Pour chaque actif inventorié, un propriétaire est-il nommément désigné et informé ?",
+        "options": ["Oui, pour tous", "Partiellement", "Non"],
+        "points": { "Oui, pour tous": 10, "Partiellement": 5, "Non": 0 },
+        "suggestion": { "Non": "Désigner des propriétaires pour tous les actifs.", "Partiellement": "Compléter les désignations manquantes." },
+        "explanation": "Le propriétaire est responsable de la gestion et de la protection de l'actif."
+      },
+      {
+        "id": "q19",
+        "text": "Tous les biens sont-ils classifiés et formellement documentés ?",
+        "options": ["Oui, selon une grille définie", "Partiellement", "Non"],
+        "points": { "Oui, selon une grille définie": 10, "Partiellement": 5, "Non": 0 },
+        "suggestion": { "Non": "Élaborer et appliquer une grille de classification.", "Partiellement": "Compléter la classification des biens." },
+        "explanation": "La classification permet d'adapter les mesures de protection à la sensibilité des actifs."
+      }
+    ]
+  },
+  {
+    "id": "gestion_acces",
+    "name": "Gestion des accès",
+    "questions": [
+      {
+        "id": "q20",
+        "text": "Une politique de contrôle d'accès qui couvre les règles relatives au contrôle d'accès logique est-elle élaborée ?",
+        "options": ["Oui", "En cours", "Non"],
+        "points": { "Oui": 10, "En cours": 5, "Non": 0 },
+        "suggestion": { "Non": "Élaborer une politique de contrôle d'accès logique.", "En cours": "Finaliser l'élaboration de la politique." },
+        "explanation": "La politique définit les règles d'attribution et de gestion des droits d'accès."
+      },
+      {
+        "id": "q21",
+        "text": "Une politique de contrôle d'accès qui couvre les règles relatives au contrôle d'accès physique aux ressources est-elle élaborée ?",
+        "options": ["Oui", "En cours", "Non"],
+        "points": { "Oui": 10, "En cours": 5, "Non": 0 },
+        "suggestion": { "Non": "Élaborer une politique de contrôle d'accès physique.", "En cours": "Finaliser l'élaboration de la politique." },
+        "explanation": "La sécurité physique est complémentaire à la sécurité logique."
+      },
+      {
+        "id": "q22",
+        "text": "Un registre centralisé de tous les droits d'accès accordés aux utilisateurs enregistrés est-il disponible ?",
+        "options": ["Oui, à jour", "Partiellement", "Non"],
+        "points": { "Oui, à jour": 10, "Partiellement": 5, "Non": 0 },
+        "suggestion": { "Non": "Mettre en place un registre centralisé des droits d'accès.", "Partiellement": "Compléter et maintenir à jour le registre." },
+        "explanation": "Le registre permet de connaître et contrôler qui a accès à quoi."
+      }
+    ]
+  }
+]
