@@ -183,7 +183,7 @@ function StatCard({ title, value, icon, suffix = '' }) {
     </Card>
   );
 }
-
+/*
 function ProfileTab({ user }) {
   const theme = useTheme();
   const [stats, setStats] = useState(null);
@@ -337,6 +337,183 @@ console.log('History response:', historyResponse.data);
               <Typography color="text.secondary">
                 Aucune statistique disponible
               </Typography>
+            )}
+          </CardContent>
+        </Card>
+      </Grid>
+    </Grid>
+  );
+}*/
+function ProfileTab({ user }) {
+  const theme = useTheme();
+  const [stats, setStats] = useState(null);
+  const [history, setHistory] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        
+        const [statsResponse, historyResponse] = await Promise.all([
+          api.get('/evaluations/stats'),
+          api.get('/evaluations/history')
+        ]);
+        
+        console.log('Stats response:', statsResponse.data);
+        console.log('History response:', historyResponse.data);
+        
+        // Adaptation à la structure actuelle de l'API
+        setStats({
+          average_score: statsResponse.data.average_score || 0,
+          // Valeurs par défaut pour les champs manquants
+          total_evaluations: 0,
+          first_evaluation: null,
+          last_evaluation: null
+        });
+        
+        setHistory(historyResponse.data || []);
+      } catch (err) {
+        console.error("Erreur chargement stats:", err);
+        setError(err.message || "Erreur lors du chargement des statistiques");
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    fetchStats();
+  }, []);
+
+  const lineData = history.length > 0 ? [
+    { date: "Début", score: 0 },
+    ...history.sort((a, b) => new Date(a.date_evaluation) - new Date(b.date_evaluation))
+      .map(evaluation => ({
+        date: new Date(evaluation.date_evaluation).toLocaleDateString('fr-FR'),
+        score: evaluation.score
+      }))
+  ] : [];
+
+  return (
+    <Grid container spacing={3}>
+      <Grid item xs={12} md={4}>
+        <Card>
+          <CardContent sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+            <Avatar sx={{ width: 100, height: 100, mb: 2 }}>
+              {user?.nom?.charAt(0) || 'U'}
+            </Avatar>
+            <Typography variant="h5">{user?.nom || 'Utilisateur'}</Typography>
+            <Typography color="text.secondary">{user?.email || ''}</Typography>
+            
+            <Box sx={{ mt: 3, width: '100%' }}>
+              <List>
+                <ListItem>
+                  <ListItemText 
+                    primary="Entité" 
+                    secondary={user?.entite_nom || 'Non spécifié'} 
+                  />
+                </ListItem>
+                <ListItem>
+                  <ListItemText 
+                    primary="Secteur" 
+                    secondary={user?.secteur || 'Non spécifié'} 
+                  />
+                </ListItem>
+                <ListItem>
+                  <ListItemText 
+                    primary="Rôle" 
+                    secondary={user?.role || 'Non spécifié'} 
+                  />
+                </ListItem>
+              </List>
+            </Box>
+          </CardContent>
+        </Card>
+      </Grid>
+      
+      <Grid item xs={12} md={8}>
+        <Card>
+          <CardContent>
+            <Typography variant="h6" gutterBottom>
+              Statistiques des évaluations
+            </Typography>
+            
+            {loading ? (
+              <Box display="flex" justifyContent="center">
+                <CircularProgress />
+              </Box>
+            ) : error ? (
+              <Alert severity="error" sx={{ mb: 3 }}>
+                {error}
+              </Alert>
+            ) : (
+              <>
+                <Grid container spacing={2} sx={{ mb: 3 }}>
+                  <Grid item xs={6} sm={3}>
+                    <StatCard 
+                      title="Score Moyen" 
+                      value={stats?.average_score?.toFixed(2) || '0.00'} 
+                      suffix="/5"
+                      icon={<TrendingUpIcon />}
+                    />
+                  </Grid>
+                  <Grid item xs={6} sm={3}>
+                    <StatCard 
+                      title="Total Évaluations" 
+                      value={stats?.total_evaluations || 0} 
+                      icon={<AssessmentIcon />}
+                    />
+                  </Grid>
+                  <Grid item xs={6} sm={3}>
+                    <StatCard 
+                      title="Première Évaluation" 
+                      value={stats?.first_evaluation 
+                        ? new Date(stats.first_evaluation).toLocaleDateString('fr-FR') 
+                        : 'N/A'} 
+                      icon={<HistoryIcon />}
+                    />
+                  </Grid>
+                  <Grid item xs={6} sm={3}>
+                    <StatCard 
+                      title="Dernière Évaluation" 
+                      value={stats?.last_evaluation 
+                        ? new Date(stats.last_evaluation).toLocaleDateString('fr-FR') 
+                        : 'N/A'} 
+                      icon={<UpdateIcon />}
+                    />
+                  </Grid>
+                </Grid>
+
+                <Typography variant="subtitle1" gutterBottom>
+                  Évolution des scores
+                </Typography>
+                <Box sx={{ height: 300 }}>
+                  {history.length > 0 ? (
+                    <ResponsiveContainer width="100%" height="100%">
+                      <LineChart data={lineData}>
+                        <CartesianGrid strokeDasharray="3 3" />
+                        <XAxis dataKey="date" />
+                        <YAxis domain={[0, 5]} />
+                        <Tooltip 
+                          formatter={(value) => [`${value}/5`, 'Score']}
+                        />
+                        <Line
+                          type="monotone"
+                          dataKey="score"
+                          stroke={theme.palette.primary.main}
+                          strokeWidth={2}
+                          dot={{ r: 4 }}
+                        />
+                      </LineChart>
+                    </ResponsiveContainer>
+                  ) : (
+                    <Typography color="text.secondary" align="center" sx={{ py: 4 }}>
+                      Aucune donnée d'évolution disponible
+                    </Typography>
+                  )}
+                </Box>
+              </>
             )}
           </CardContent>
         </Card>
