@@ -25,7 +25,10 @@ router.get('/evaluations/history', authenticate, async (req, res) => {
     const limit = parseInt(req.query.limit, 10) || 10;
     const offset = (page - 1) * limit;
 
-    const [evaluations, [totalCount]] = await Promise.all([ // Renommage de total en totalCount
+    // Debug logging
+    console.log(`Fetching history for entite_id: ${entite_id}, page: ${page}, limit: ${limit}, offset: ${offset}`);
+
+    const [evaluations, [totalCount]] = await Promise.all([
       db.query(
         `SELECT e.*, u.nom as evaluateur
          FROM evaluation e
@@ -33,7 +36,7 @@ router.get('/evaluations/history', authenticate, async (req, res) => {
          WHERE e.entite_id = ?
          ORDER BY e.date_evaluation DESC
          LIMIT ? OFFSET ?`,
-        [entite_id, limit, offset]
+        [entite_id, limit.toString(), offset.toString()] // Explicit string conversion
       ),
       db.query(
         `SELECT COUNT(*) as total
