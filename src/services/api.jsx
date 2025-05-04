@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || 'https://pssi-deploy.railway.internal/api',
+  baseURL: import.meta.env.VITE_API_URL || 'https://backend-production-1db9.up.railway.app/api',
   headers: {
     'Content-Type': 'application/json'
   }
