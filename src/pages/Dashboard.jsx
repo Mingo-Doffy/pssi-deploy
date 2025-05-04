@@ -503,7 +503,7 @@ function ProfileTab({ user }) {
                     <StatCard 
                       title="Score Moyen" 
                       value={stats?.average_score?.toFixed(2) || '0.00'} 
-                      suffix="/5"
+                      suffix="/100"
                       icon={<TrendingUpIcon />}
                     />
                   </Grid>
