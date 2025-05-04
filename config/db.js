@@ -2,6 +2,14 @@ const mysql = require('mysql2/promise');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
+console.log("MYSQLHOST:", process.env.MYSQLHOST);
+console.log("MYSQLPORT:", process.env.MYSQLPORT);
+console.log("MYSQLUSER:", process.env.MYSQLUSER);
+console.log("MYSQLPASSWORD:", process.env.MYSQLPASSWORD);
+console.log("MYSQLDATABASE:", process.env.MYSQLDATABASE);
+
+console.log("transition");
+
 console.log("MYSQL_HOST:", process.env.MYSQL_HOST);
 console.log("MYSQL_PORT:", process.env.MYSQL_PORT);
 console.log("MYSQL_USER:", process.env.MYSQL_USER);
