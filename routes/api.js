@@ -106,34 +106,31 @@ router.get('/evaluations/history/details',
     });
   }
 });*/
+// Dans votre route /evaluations/stats
 router.get('/evaluations/stats', authenticate, async (req, res) => {
   try {
-    const [stats] = await db.query(
-      `SELECT
+    const [results] = await db.query(`
+      SELECT
         COUNT(*) as total_evaluations,
         AVG(score) as average_score,
         MIN(date_evaluation) as first_evaluation,
         MAX(date_evaluation) as last_evaluation
-       FROM evaluation
-       WHERE entite_id = ?`,
-      [req.user.entite_id]
-    );
+      FROM evaluation
+      WHERE entite_id = ?
+    `, [req.user.entite_id]);
 
     res.json({
       success: true,
-      data: {
-        total_evaluations: stats[0]?.total_evaluations || 0,
-        average_score: stats[0]?.average_score ? parseFloat(stats[0].average_score) : 0,
-        first_evaluation: stats[0]?.first_evaluation || null,
-        last_evaluation: stats[0]?.last_evaluation || null
-      }
+      total_evaluations: results[0]?.total_evaluations || 0,
+      average_score: results[0]?.average_score ? parseFloat(results[0].average_score) : 0,
+      first_evaluation: results[0]?.first_evaluation || null,
+      last_evaluation: results[0]?.last_evaluation || null
     });
   } catch (error) {
-    console.error("Erreur récupération statistiques:", error);
+    console.error("Erreur stats:", error);
     res.status(500).json({
       success: false,
-      error: 'SERVER_ERROR',
-      message: "Erreur serveur"
+      error: 'SERVER_ERROR'
     });
   }
 });
