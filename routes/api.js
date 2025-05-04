@@ -75,38 +75,6 @@ router.get('/evaluations/history/details',
   evaluationController.getEvaluationHistoryDetails
 );
 
-/*router.get('/evaluations/stats', authenticate, async (req, res) => {
-  try {
-    const [stats] = await db.query(
-      `SELECT
-        COUNT(*) as total_evaluations,
-        AVG(score) as average_score,
-        MIN(score) as min_score,
-        MAX(score) as max_score,
-        MIN(date_evaluation) as first_evaluation,
-        MAX(date_evaluation) as last_evaluation
-       FROM evaluation
-       WHERE entite_id = ?`,
-      [req.user.entite_id]
-    );
-
-    res.json({
-      success: true,
-      data: {
-        ...stats[0] || {}, // Retourne un objet vide si stats est null/undefined
-        average_score: stats[0]?.average_score ? parseFloat(stats[0].average_score) : 0
-      }
-    });
-  } catch (error) {
-    console.error("Erreur récupération statistiques:", error);
-    res.status(500).json({
-      success: false,
-      error: 'SERVER_ERROR',
-      message: "Erreur serveur"
-    });
-  }
-});*/
-// Dans votre route /evaluations/stats
 router.get('/evaluations/stats', authenticate, async (req, res) => {
   try {
     const [results] = await db.query(`
