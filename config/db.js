@@ -8,8 +8,6 @@ console.log("MYSQLUSER:", process.env.MYSQLUSER);
 console.log("MYSQLPASSWORD:", process.env.MYSQLPASSWORD);
 console.log("MYSQL_DATABASE:", process.env.MYSQL_DATABASE);
 
-
-
 const pool = mysql.createPool({
   host: process.env.MYSQLHOST,
   port: process.env.MYSQLPORT,
@@ -17,9 +15,13 @@ const pool = mysql.createPool({
   password: process.env.MYSQLPASSWORD,
   database: process.env.MYSQL_DATABASE,
   waitForConnections: true,
-  connectionLimit: parseInt(process.env.DB_CONNECTION_LIMIT) || 10, // Valeur par défaut si non définie
+  connectionLimit: parseInt(process.env.DB_CONNECTION_LIMIT) || 10,
   queueLimit: 0,
-  ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: true } : false
+  ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: true } : false,
+  // Ajoute cette option pour désactiver la vérification stricte du certificat
+  ssl: {
+    rejectUnauthorized: false
+  }
 });
 
 // Tentative de connexion initiale pour vérifier la base de données
