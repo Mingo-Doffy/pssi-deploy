@@ -6,14 +6,12 @@ const apiRouter = require('./routes/api');
 
 const app = express();
 
-// Configuration CORS dynamique pour Railway (et local)
-const allowedOrigins = process.env.CORS_ALLOWED_ORIGINS ? process.env.CORS_ALLOWED_ORIGINS.split(',') : [];
-if (!process.env.CORS_ALLOWED_ORIGINS) {
-  console.warn("[CORS] CORS_ALLOWED_ORIGINS n'est pas défini. Autorisation potentielle de toutes les origines en local.");
-}
+// Configuration CORS manuelle pour Railway
+const allowedOrigin = 'https://frontend-production-8fda.up.railway.app'; // Remplace par l'URL EXACTE de ton frontend
+
 const corsOptions = {
   origin: (origin, callback) => {
-    if (!origin || allowedOrigins.includes(origin)) {
+    if (!origin || origin === allowedOrigin) {
       callback(null, true);
     } else {
       callback(new Error('Not allowed by CORS'));
@@ -74,5 +72,5 @@ app.listen(PORT, () => {
   const timestamp = new Date().toISOString();
   console.log(`[${timestamp}] Serveur démarré sur le port ${PORT}`);
   console.log(`Environnement: ${process.env.NODE_ENV || 'development'}`);
-  console.log(`Origines CORS autorisées: ${allowedOrigins.join(', ')}`);
+  console.log(`Origines CORS autorisées: ${allowedOrigin}`); // Log l'origine manuelle
 });
