@@ -30,9 +30,8 @@ router.get('/evaluations/history', authenticate, async (req, res) => {
          FROM evaluation e
          JOIN utilisateur u ON e.utilisateur_id = u.utilisateur_id
          WHERE e.entite_id = ?
-         ORDER BY e.date_evaluation DESC
-         LIMIT ? OFFSET ?`,
-        [3, 10, 0] // <-- Valeurs statiques
+         ORDER BY e.date_evaluation DESC,
+        [entite_id]` 
       ),
       db.queryOne(
         `SELECT COUNT(*) as total 
