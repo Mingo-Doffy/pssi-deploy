@@ -8,6 +8,9 @@ const app = express();
 
 // Configuration CORS dynamique pour Railway (et local)
 const allowedOrigins = process.env.CORS_ALLOWED_ORIGINS ? process.env.CORS_ALLOWED_ORIGINS.split(',') : [];
+if (!process.env.CORS_ALLOWED_ORIGINS) {
+  console.warn("[CORS] CORS_ALLOWED_ORIGINS n'est pas défini. Autorisation potentielle de toutes les origines en local.");
+}
 const corsOptions = {
   origin: (origin, callback) => {
     if (!origin || allowedOrigins.includes(origin)) {
