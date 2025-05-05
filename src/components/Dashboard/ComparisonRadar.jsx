@@ -1,4 +1,4 @@
-import React from 'react';
+/*import React from 'react';
 import { Radar, Bar } from 'react-chartjs-2';
 import {
   Chart as ChartJS,
@@ -48,7 +48,7 @@ const DOMAIN_CONFIG = {
   gestion_acces: "Gestion des Accès"
 };
 
-/*const EvolutionChart = ({ currentHistory = [], comparedHistory = [] }) => {
+const EvolutionChart = ({ currentHistory = [], comparedHistory = [] }) => {
   const theme = useTheme();
 
   const prepareData = () => {
@@ -114,9 +114,9 @@ const DOMAIN_CONFIG = {
       </ResponsiveContainer>
     </Box>
   );
-};*/
+};
 
-/*const groupByDomain = (details) => {
+const groupByDomain = (details) => {
   const domains = {};
   
   // Initialiser les domaines
@@ -160,96 +160,11 @@ const DOMAIN_CONFIG = {
   });
 
   return result;
-};*/
-const groupByDomain = (details) => {
-  // Vérification initiale des données
-  if (!details || typeof details !== 'object' || Object.keys(details).length === 0) {
-    console.warn('Details invalides ou vides:', details);
-    return Object.keys(DOMAIN_CONFIG).reduce((acc, domainId) => {
-      acc[domainId] = {
-        name: DOMAIN_CONFIG[domainId],
-        score: 0,
-        questions: []
-      };
-      return acc;
-    }, {});
-  }
-
-  const domains = {};
-  
-  // Initialisation des domaines
-  Object.keys(DOMAIN_CONFIG).forEach(domainId => {
-    domains[domainId] = {
-      total: 0,
-      count: 0,
-      name: DOMAIN_CONFIG[domainId],
-      questions: []
-    };
-  });
-
-  // Traitement des données avec gestion d'erreur
-  Object.entries(details).forEach(([key, value]) => {
-    try {
-      // Gestion des clés avec ou sans préfixe 'q'
-      const [domainId, questionId] = key.includes('_q') ? 
-        key.split('_q') : 
-        [key.replace(/_\d+$/, ''), key.split('_').pop()];
-      
-      if (domains[domainId]) {
-        const points = typeof value === 'object' ? 
-                      (value.points || 0) : 
-                      (typeof value === 'number' ? value : 0);
-        
-        domains[domainId].total += points;
-        domains[domainId].count += 1;
-        domains[domainId].questions.push({
-          id: questionId,
-          points: points,
-          suggestion: typeof value === 'object' ? value.suggestion : null
-        });
-      }
-    } catch (err) {
-      console.warn(`Erreur traitement question ${key}:`, err);
-    }
-  });
-
-  // Calcul des scores
-  const result = {};
-  Object.entries(domains).forEach(([domainId, domainData]) => {
-    const score = domainData.count > 0 ? 
-      Math.round((domainData.total / (domainData.count * 10)) * 100) : 0;
-      
-    result[domainId] = {
-      name: domainData.name,
-      score: Math.min(100, Math.max(0, score)), // Garantir entre 0 et 100
-      questions: domainData.questions
-    };
-  });
-
-  return result;
 };
 
-const calculateDifferences = (currentDomains, comparedDomains) => {
-  const differences = [];
-  
-  Object.entries(currentDomains).forEach(([domainId, currentData]) => {
-    const comparedData = comparedDomains[domainId];
-    if (comparedData) {
-      const diff = currentData.score - comparedData.score;
-      differences.push({
-        domain: currentData.name,
-        currentScore: currentData.score,
-        comparedScore: comparedData.score,
-        difference: diff,
-        isPositive: diff > 0
-      });
-    }
-  });
 
-  return differences.sort((a, b) => Math.abs(b.difference) - Math.abs(a.difference));
-};
 
-/*export default function ComparisonRadar({ data, loading }) {
+export default function ComparisonRadar({ data, loading }) {
   const theme = useTheme();
 
   if (loading) {
@@ -456,7 +371,139 @@ const calculateDifferences = (currentDomains, comparedDomains) => {
       </CardContent>
     </Card>
   );
-}*/
+}
+
+*/
+
+import React, { useState } from 'react';
+import { Radar, Bar } from 'react-chartjs-2';
+import {
+  Chart as ChartJS,
+  RadialLinearScale,
+  PointElement,
+  LineElement,
+  Filler,
+  Tooltip,
+  Legend,
+  CategoryScale,
+  LinearScale,
+  BarElement
+} from 'chart.js';
+import { 
+  Card, 
+  CardHeader, 
+  CardContent, 
+  Box, 
+  Typography,
+  Grid,
+  Alert,
+  useTheme,
+  Paper,
+  CircularProgress
+} from '@mui/material';
+
+ChartJS.register(
+  RadialLinearScale,
+  PointElement,
+  LineElement,
+  Filler,
+  Tooltip,
+  Legend,
+  CategoryScale,
+  LinearScale,
+  BarElement
+);
+
+const DOMAIN_CONFIG = {
+  leadership_gouvernance: "Leadership & Gouvernance",
+  organisation_securite: "Organisation Sécurité",
+  gestion_risques: "Gestion des Risques",
+  securite_rh: "Sécurité RH",
+  gestion_actifs: "Gestion des actifs informationnels",
+  gestion_acces: "Gestion des Accès"
+};
+
+const groupByDomain = (details) => {
+  if (!details || typeof details !== 'object' || Object.keys(details).length === 0) {
+    return Object.keys(DOMAIN_CONFIG).reduce((acc, domainId) => {
+      acc[domainId] = {
+        name: DOMAIN_CONFIG[domainId],
+        score: 0,
+        questions: []
+      };
+      return acc;
+    }, {});
+  }
+
+  const domains = {};
+  
+  Object.keys(DOMAIN_CONFIG).forEach(domainId => {
+    domains[domainId] = {
+      total: 0,
+      count: 0,
+      name: DOMAIN_CONFIG[domainId],
+      questions: []
+    };
+  });
+
+  Object.entries(details).forEach(([key, value]) => {
+    try {
+      const [domainId, questionId] = key.includes('_q') ? 
+        key.split('_q') : 
+        [key.replace(/_\d+$/, ''), key.split('_').pop()];
+      
+      if (domains[domainId]) {
+        const points = typeof value === 'object' ? 
+                      (value.points || 0) : 
+                      (typeof value === 'number' ? value : 0);
+        
+        domains[domainId].total += points;
+        domains[domainId].count += 1;
+        domains[domainId].questions.push({
+          id: questionId,
+          points: points,
+          suggestion: typeof value === 'object' ? value.suggestion : null
+        });
+      }
+    } catch (err) {
+      console.warn(`Erreur traitement question ${key}:`, err);
+    }
+  });
+
+  const result = {};
+  Object.entries(domains).forEach(([domainId, domainData]) => {
+    const score = domainData.count > 0 ? 
+      Math.round((domainData.total / (domainData.count * 10)) * 100) : 0;
+      
+    result[domainId] = {
+      name: domainData.name,
+      score: Math.min(100, Math.max(0, score)),
+      questions: domainData.questions
+    };
+  });
+
+  return result;
+};
+
+const calculateDifferences = (currentDomains, comparedDomains) => {
+  const differences = [];
+  
+  Object.entries(currentDomains).forEach(([domainId, currentData]) => {
+    const comparedData = comparedDomains[domainId];
+    if (comparedData) {
+      const diff = currentData.score - comparedData.score;
+      differences.push({
+        domain: currentData.name,
+        currentScore: currentData.score,
+        comparedScore: comparedData.score,
+        difference: diff,
+        isPositive: diff > 0
+      });
+    }
+  });
+
+  return differences.sort((a, b) => Math.abs(b.difference) - Math.abs(a.difference));
+};
 
 export default function ComparisonRadar({ data, loading }) {
   const theme = useTheme();
@@ -470,16 +517,12 @@ export default function ComparisonRadar({ data, loading }) {
     );
   }
 
-  // Vérification approfondie des données
-  if (!data || !data.currentEntite || !data.comparedEntite || 
-      !data.currentEntite.data || !data.comparedEntite.data ||
-      Object.keys(data.currentEntite.data).length === 0 || 
-      Object.keys(data.comparedEntite.data).length === 0) {
+  if (!data || !data.currentEntite || !data.comparedEntite) {
     return (
       <Card>
         <CardContent>
           <Alert severity="error">
-            {data?.error || "Données de comparaison incomplètes ou invalides"}
+            {data?.error || "Données de comparaison incomplètes"}
           </Alert>
         </CardContent>
       </Card>
@@ -487,12 +530,10 @@ export default function ComparisonRadar({ data, loading }) {
   }
 
   try {
-    // Grouper les données par domaine avec gestion d'erreur
-    const currentDomains = groupByDomain(data.currentEntite.data);
-    const comparedDomains = groupByDomain(data.comparedEntite.data);
+    const currentDomains = groupByDomain(data.currentEntite.data || {});
+    const comparedDomains = groupByDomain(data.comparedEntite.data || {});
     const domainDifferences = calculateDifferences(currentDomains, comparedDomains);
 
-    // Préparer les données pour les graphiques
     const domainLabels = Object.values(DOMAIN_CONFIG);
     
     const radarData = {
@@ -607,24 +648,18 @@ export default function ComparisonRadar({ data, loading }) {
     return (
       <Card>
         <CardHeader
-          title={`Comparaison des évaluations: ${data.currentEntite.name} vs ${data.comparedEntite.name}`}
-          subheader="Analyse des performances par domaine de sécurité"
+          title={`Comparaison: ${data.currentEntite.name} vs ${data.comparedEntite.name}`}
+          subheader={`Dernières évaluations: ${new Date(data.currentEntite.latestDate).toLocaleDateString()} (${data.currentEntite.latestScore}%) vs ${new Date(data.comparedEntite.latestDate).toLocaleDateString()} (${data.comparedEntite.latestScore}%)`}
         />
         <CardContent>
           <Grid container spacing={3}>
             <Grid item xs={12} md={6}>
-              <Typography variant="h6" gutterBottom align="center">
-                Vue Radar par domaine
-              </Typography>
               <Box sx={{ height: 400 }}>
                 <Radar data={radarData} options={radarOptions} />
               </Box>
             </Grid>
 
             <Grid item xs={12} md={6}>
-              <Typography variant="h6" gutterBottom align="center">
-                Comparaison par domaine
-              </Typography>
               <Box sx={{ height: 400 }}>
                 <Bar data={barData} options={commonOptions} />
               </Box>
@@ -671,7 +706,6 @@ export default function ComparisonRadar({ data, loading }) {
         </CardContent>
       </Card>
     );
-
   } catch (err) {
     console.error("Erreur de rendu:", err);
     return (

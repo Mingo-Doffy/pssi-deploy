@@ -781,39 +781,72 @@ export default function Dashboard() {
       setLoading(false);
     }
   };*/
-  const compareEntites = async () => {
-    if (!selectedEntite) {
-      setError("Veuillez sélectionner une entité valide");
-      return;
-    }
-  
-    setLoading(true);
-    setError('');
-  
-    try {
-      const response = await api.get('/evaluations/compare', {
-        params: {
-          entite1: user.entite_id,
-          entite2: selectedEntite
-        }
-      });
-  
-      if (!response.data.success) {
-        throw new Error(response.data.message || "Erreur lors de la comparaison");
+const compareEntites = async () => {
+  if (!selectedEntite) {
+    setError("Veuillez sélectionner une entité valide");
+    return;
+  }
+
+  if (!user?.entite_id) {
+    setError("Impossible d'identifier votre entité actuelle");
+    return;
+  }
+
+  setLoading(true);
+  setError('');
+  setComparison(null);
+
+  try {
+    console.log("Début de la comparaison entre:", user.entite_id, "et", selectedEntite);
+    
+    const response = await api.get('/evaluations/compare', {
+      params: {
+        entite1: user.entite_id,
+        entite2: selectedEntite
       }
-  
-      setComparison(response.data.data);
-  
-    } catch (err) {
-      console.error("Erreur de comparaison:", err);
-      setError(err.message || "Erreur lors de la comparaison");
-      setComparison({
-        error: err.message || "Erreur lors de la comparaison"
-      });
-    } finally {
-      setLoading(false);
+    });
+
+    console.log("Réponse de l'API:", response.data);
+
+    if (!response.data.success) {
+      throw new Error(response.data.message || "Erreur lors de la comparaison");
     }
-  };
+
+    if (!response.data.data || !response.data.data.currentEntite || !response.data.data.comparedEntite) {
+      throw new Error("Données de comparaison incomplètes");
+    }
+
+    // Vérification que les données nécessaires existent
+    if (
+      !response.data.data.currentEntite.data || 
+      !response.data.data.comparedEntite.data ||
+      Object.keys(response.data.data.currentEntite.data).length === 0 ||
+      Object.keys(response.data.data.comparedEntite.data).length === 0
+    ) {
+      throw new Error("Les données d'évaluation sont incomplètes");
+    }
+
+    setComparison(response.data.data);
+
+  } catch (err) {
+    console.error("Erreur détaillée:", {
+      message: err.message,
+      response: err.response?.data,
+      stack: err.stack
+    });
+    
+    const errorMessage = err.response?.data?.message || 
+                        err.message || 
+                        "Une erreur est survenue lors de la comparaison";
+    
+    setError(errorMessage);
+    setComparison({
+      error: errorMessage
+    });
+  } finally {
+    setLoading(false);
+  }
+};
 
   const handleTabChange = (event, newValue) => {
     setTabValue(newValue);
