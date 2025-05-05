@@ -389,28 +389,20 @@ router.get('/evaluations/compare', authenticate, async (req, res) => {
       data: {
         currentEntite: {
           id: entite1,
-          name: entite1Data[0].entite_nom || "Entité 1",
+          name: entite1Data[0]?.entite_nom || "Entité 1",
           data: parseDetails(entite1Data),
-          latestScore: entite1Data[0].score || 0,
-          latestDate: entite1Data[0].date_evaluation || null
+          latestScore: entite1Data[0]?.score || 0,
+          latestDate: entite1Data[0]?.date_evaluation || null
         },
         comparedEntite: {
           id: entite2,
-          name: entite2Data[0].entite_nom || "Entité 2",
+          name: entite2Data[0]?.entite_nom || "Entité 2",
           data: parseDetails(entite2Data),
-          latestScore: entite2Data[0].score || 0,
-          latestDate: entite2Data[0].date_evaluation || null
+          latestScore: entite2Data[0]?.score || 0,
+          latestDate: entite2Data[0]?.date_evaluation || null
         },
-        currentHistory: entite1History.map(item => ({
-          id: item.evaluation_id,
-          date: item.date_evaluation,
-          score: item.score
-        })),
-        comparedHistory: entite2History.map(item => ({
-          id: item.evaluation_id,
-          date: item.date_evaluation,
-          score: item.score
-        }))
+        currentHistory: entite1History,
+        comparedHistory: entite2History
       }
     });
 
