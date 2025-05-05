@@ -126,38 +126,6 @@ router.get('/entites', authenticate, async (req, res) => {
   }
 });
 
-/*router.get('/evaluations/latest/:entiteId', authenticate, async (req, res) => {
-  try {
-    const [evaluation] = await db.query( // Utilisation de db.query
-      `SELECT * FROM evaluation
-       WHERE entite_id = ?
-       ORDER BY date_evaluation DESC LIMIT 1`,
-      [req.params.entiteId]
-    );
-
-    if (!evaluation || evaluation.length === 0) {
-      return res.status(404).json({
-        success: false,
-        error: 'NO_EVALUATION',
-        message: "Aucune évaluation trouvée pour cette entité"
-      });
-    }
-
-    res.json({
-      success: true,
-      ...evaluation[0] || {}, // Spread un objet vide si evaluation[0] est undefined
-      details: evaluation[0]?.details ? JSON.parse(evaluation[0].details) : null // Vérification avant de parser
-    });
-  } catch (error) {
-    console.error("Erreur récupération évaluation:", error);
-    res.status(500).json({
-      success: false,
-      error: 'SERVER_ERROR',
-      message: "Erreur serveur"
-    });
-  }
-});*/
-
 // Modifiez la route /evaluations/latest/:entiteId
 router.get('/evaluations/latest/:entiteId', authenticate, async (req, res) => {
   try {
@@ -208,91 +176,6 @@ router.get('/evaluations/latest/:entiteId', authenticate, async (req, res) => {
 });
 
 // Ajoutez une nouvelle route pour la comparaison
-/*router.get('/evaluations/compare', authenticate, async (req, res) => {
-  try {
-    const { entite1, entite2 } = req.query;
-    
-    if (!entite1 || !entite2) {
-      return res.status(400).json({
-        success: false,
-        error: 'MISSING_PARAMS',
-        message: "Les IDs des entités à comparer sont requis"
-      });
-    }
-
-    const [entite1Data, entite2Data, entite1History, entite2History] = await Promise.all([
-      db.query(
-        `SELECT e.*, ent.nom as entite_nom 
-         FROM evaluation e
-         JOIN entite ent ON e.entite_id = ent.entite_id
-         WHERE e.entite_id = ?
-         ORDER BY e.date_evaluation DESC LIMIT 1`,
-        [entite1]
-      ),
-      db.query(
-        `SELECT e.*, ent.nom as entite_nom 
-         FROM evaluation e
-         JOIN entite ent ON e.entite_id = ent.entite_id
-         WHERE e.entite_id = ?
-         ORDER BY e.date_evaluation DESC LIMIT 1`,
-        [entite2]
-      ),
-      db.query(
-        `SELECT * FROM evaluation 
-         WHERE entite_id = ?
-         ORDER BY date_evaluation DESC LIMIT 6`,
-        [entite1]
-      ),
-      db.query(
-        `SELECT * FROM evaluation 
-         WHERE entite_id = ?
-         ORDER BY date_evaluation DESC LIMIT 6`,
-        [entite2]
-      )
-    ]);
-
-    // Fonction pour parser les détails
-    const parseDetails = (evalData) => {
-      if (!evalData || !evalData[0]) return {};
-      try {
-        return evalData[0].details ? 
-          (typeof evalData[0].details === 'string' ? 
-            JSON.parse(evalData[0].details) : 
-            evalData[0].details) : 
-          {};
-      } catch (e) {
-        console.error("Erreur parsing details:", e);
-        return {};
-      }
-    };
-
-    res.json({
-      success: true,
-      data: {
-        currentEntite: {
-          id: entite1,
-          name: entite1Data[0]?.entite_nom || "Entité 1",
-          data: parseDetails(entite1Data)
-        },
-        comparedEntite: {
-          id: entite2,
-          name: entite2Data[0]?.entite_nom || "Entité 2",
-          data: parseDetails(entite2Data)
-        },
-        currentHistory: entite1History || [],
-        comparedHistory: entite2History || []
-      }
-    });
-
-  } catch (error) {
-    console.error("Erreur comparaison:", error);
-    res.status(500).json({
-      success: false,
-      error: 'SERVER_ERROR',
-      message: "Erreur lors de la comparaison"
-    });
-  }
-});*/
 router.get('/evaluations/compare', authenticate, async (req, res) => {
   try {
     const { entite1, entite2 } = req.query;
