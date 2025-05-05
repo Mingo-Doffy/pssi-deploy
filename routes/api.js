@@ -208,7 +208,7 @@ router.get('/evaluations/latest/:entiteId', authenticate, async (req, res) => {
 });
 
 // Ajoutez une nouvelle route pour la comparaison
-router.get('/evaluations/compare', authenticate, async (req, res) => {
+/*router.get('/evaluations/compare', authenticate, async (req, res) => {
   try {
     const { entite1, entite2 } = req.query;
     
@@ -292,7 +292,139 @@ router.get('/evaluations/compare', authenticate, async (req, res) => {
       message: "Erreur lors de la comparaison"
     });
   }
+});*/
+router.get('/evaluations/compare', authenticate, async (req, res) => {
+  try {
+    const { entite1, entite2 } = req.query;
+    
+    if (!entite1 || !entite2) {
+      return res.status(400).json({
+        success: false,
+        error: 'MISSING_PARAMS',
+        message: "Les IDs des entités à comparer sont requis"
+      });
+    }
+
+    // Vérification que les entités existent
+    const [entite1Exists, entite2Exists] = await Promise.all([
+      db.query('SELECT entite_id FROM entite WHERE entite_id = ?', [entite1]),
+      db.query('SELECT entite_id FROM entite WHERE entite_id = ?', [entite2])
+    ]);
+
+    if (entite1Exists.length === 0 || entite2Exists.length === 0) {
+      return res.status(404).json({
+        success: false,
+        error: 'ENTITIES_NOT_FOUND',
+        message: "Une ou plusieurs entités n'existent pas"
+      });
+    }
+
+    // Récupération des données
+    const [entite1Data, entite2Data, entite1History, entite2History] = await Promise.all([
+      db.query(
+        `SELECT e.*, ent.nom as entite_nom 
+         FROM evaluation e
+         JOIN entite ent ON e.entite_id = ent.entite_id
+         WHERE e.entite_id = ?
+         ORDER BY e.date_evaluation DESC LIMIT 1`,
+        [entite1]
+      ),
+      db.query(
+        `SELECT e.*, ent.nom as entite_nom 
+         FROM evaluation e
+         JOIN entite ent ON e.entite_id = ent.entite_id
+         WHERE e.entite_id = ?
+         ORDER BY e.date_evaluation DESC LIMIT 1`,
+        [entite2]
+      ),
+      db.query(
+        `SELECT evaluation_id, entite_id, date_evaluation, score 
+         FROM evaluation 
+         WHERE entite_id = ?
+         ORDER BY date_evaluation DESC LIMIT 6`,
+        [entite1]
+      ),
+      db.query(
+        `SELECT evaluation_id, entite_id, date_evaluation, score 
+         FROM evaluation 
+         WHERE entite_id = ?
+         ORDER BY date_evaluation DESC LIMIT 6`,
+        [entite2]
+      )
+    ]);
+
+    // Fonction pour parser et valider les détails
+    const parseDetails = (evalData) => {
+      if (!evalData || !evalData[0] || !evalData[0].details) return {};
+      
+      try {
+        const details = typeof evalData[0].details === 'string' 
+          ? JSON.parse(evalData[0].details) 
+          : evalData[0].details;
+        
+        // Validation des données
+        if (typeof details !== 'object' || details === null) {
+          console.error('Details invalides:', details);
+          return {};
+        }
+        
+        return details;
+      } catch (e) {
+        console.error("Erreur parsing details:", e);
+        return {};
+      }
+    };
+
+    // Vérification des données avant envoi
+    if (!entite1Data[0] || !entite2Data[0]) {
+      return res.status(404).json({
+        success: false,
+        error: 'NO_EVALUATION_DATA',
+        message: "Données d'évaluation manquantes pour une ou plusieurs entités"
+      });
+    }
+
+    res.json({
+      success: true,
+      data: {
+        currentEntite: {
+          id: entite1,
+          name: entite1Data[0].entite_nom || "Entité 1",
+          data: parseDetails(entite1Data),
+          latestScore: entite1Data[0].score || 0,
+          latestDate: entite1Data[0].date_evaluation || null
+        },
+        comparedEntite: {
+          id: entite2,
+          name: entite2Data[0].entite_nom || "Entité 2",
+          data: parseDetails(entite2Data),
+          latestScore: entite2Data[0].score || 0,
+          latestDate: entite2Data[0].date_evaluation || null
+        },
+        currentHistory: entite1History.map(item => ({
+          id: item.evaluation_id,
+          date: item.date_evaluation,
+          score: item.score
+        })),
+        comparedHistory: entite2History.map(item => ({
+          id: item.evaluation_id,
+          date: item.date_evaluation,
+          score: item.score
+        }))
+      }
+    });
+
+  } catch (error) {
+    console.error("Erreur comparaison:", error);
+    res.status(500).json({
+      success: false,
+      error: 'SERVER_ERROR',
+      message: "Erreur lors de la comparaison",
+      details: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
+  }
 });
+
 
 // GET détails d'une entité spécifique
 router.get('/entites/:id', authenticate, async (req, res) => {
