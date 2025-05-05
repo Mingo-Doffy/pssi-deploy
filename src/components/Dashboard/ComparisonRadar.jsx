@@ -48,7 +48,7 @@ const DOMAIN_CONFIG = {
   gestion_acces: "Gestion des Accès"
 };
 
-const EvolutionChart = ({ currentHistory = [], comparedHistory = [] }) => {
+/*const EvolutionChart = ({ currentHistory = [], comparedHistory = [] }) => {
   const theme = useTheme();
 
   const prepareData = () => {
@@ -114,7 +114,7 @@ const EvolutionChart = ({ currentHistory = [], comparedHistory = [] }) => {
       </ResponsiveContainer>
     </Box>
   );
-};
+};*/
 
 const groupByDomain = (details) => {
   const domains = {};
