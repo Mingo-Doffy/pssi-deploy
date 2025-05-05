@@ -23,7 +23,7 @@ import ComparisonRadar from '../components/Dashboard/ComparisonRadar';
 import SecurityTest from '../components/Dashboard/SecurityTest';
 import HistoryChart from '../components/Dashboard/HistoryChart';
 
-function ComparisonTab({ 
+/*function ComparisonTab({ 
   entites, 
   selectedEntite, 
   setSelectedEntite, 
@@ -103,6 +103,106 @@ function ComparisonTab({
               justifyContent: 'center',
               height: '400px'
             }}>
+              <CompareIcon color="action" sx={{ fontSize: 60, mb: 2 }} />
+              <Typography variant="h6" color="text.secondary" align="center">
+                {entites.length > 0 
+                  ? "Sélectionnez une entité à comparer" 
+                  : "Aucune entité disponible pour comparaison"}
+              </Typography>
+            </CardContent>
+          </Card>
+        )}
+      </Grid>
+    </Grid>
+  );
+}*/
+function ComparisonTab({ 
+  entites, 
+  selectedEntite, 
+  setSelectedEntite, 
+  comparison, 
+  compareEntites, 
+  loading,
+  user 
+}) {
+  const theme = useTheme();
+
+  return (
+    <Grid container spacing={3}>
+      <Grid item xs={12} md={4}>
+        <Card>
+          <CardContent>
+            <Typography variant="h6" gutterBottom>
+              Comparer avec une autre entité
+            </Typography>
+            
+            {loading ? (
+              <Box display="flex" justifyContent="center">
+                <CircularProgress />
+              </Box>
+            ) : entites.length === 0 ? (
+              <Alert severity="warning">
+                Aucune autre entité disponible pour comparaison
+              </Alert>
+            ) : (
+              <>
+                <FormControl fullWidth sx={{ mb: 2 }}>
+                  <InputLabel>Entité à comparer</InputLabel>
+                  <Select
+                    value={selectedEntite || ''}
+                    onChange={(e) => setSelectedEntite(e.target.value)}
+                    label="Entité à comparer"
+                  >
+                    {entites.map((entite) => (
+                      <MenuItem 
+                        key={entite.entite_id} 
+                        value={entite.entite_id}
+                        disabled={entite.entite_id === user?.entite_id}
+                      >
+                        {entite.nom} ({entite.secteur})
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+                
+                <Button
+                  variant="contained"
+                  onClick={compareEntites}
+                  disabled={loading || !selectedEntite}
+                  fullWidth
+                  sx={{ mt: 2 }}
+                  startIcon={loading ? <CircularProgress size={20} /> : null}
+                >
+                  {loading ? 'Comparaison en cours...' : 'Lancer la comparaison'}
+                </Button>
+              </>
+            )}
+          </CardContent>
+        </Card>
+      </Grid>
+      
+      <Grid item xs={12} md={8}>
+        {loading ? (
+          <Box display="flex" justifyContent="center" alignItems="center" height="400px">
+            <CircularProgress />
+            <Typography sx={{ ml: 2 }}>Chargement des données...</Typography>
+          </Box>
+        ) : comparison?.currentEntite?.data && comparison?.comparedEntite?.data ? (
+          <ComparisonRadar data={comparison} />
+        ) : (
+          <Card sx={{ height: '100%' }}>
+            <CardContent sx={{ 
+              display: 'flex', 
+              flexDirection: 'column', 
+              alignItems: 'center', 
+              justifyContent: 'center',
+              height: '400px'
+            }}>
+              {comparison?.error ? (
+                <Alert severity="error" sx={{ mb: 2 }}>
+                  {comparison.error}
+                </Alert>
+              ) : null}
               <CompareIcon color="action" sx={{ fontSize: 60, mb: 2 }} />
               <Typography variant="h6" color="text.secondary" align="center">
                 {entites.length > 0 
@@ -617,7 +717,7 @@ export default function Dashboard() {
     loadData();
   }, [user]);
 
-  const compareEntites = async () => {
+  /*const compareEntites = async () => {
     if (!selectedEntite) {
       setError("Veuillez sélectionner une entité valide");
       return;
@@ -677,6 +777,100 @@ export default function Dashboard() {
     } catch (err) {
       console.error("Erreur de comparaison:", err);
       setError(err.message || "Erreur lors de la comparaison");
+    } finally {
+      setLoading(false);
+    }
+  };*/
+  const compareEntites = async () => {
+    if (!selectedEntite) {
+      setError("Veuillez sélectionner une entité valide");
+      return;
+    }
+  
+    if (!user?.entite_id) {
+      setError("Impossible d'identifier votre entité actuelle");
+      return;
+    }
+  
+    setLoading(true);
+    setError('');
+  
+    try {
+      const selectedEntiteNum = Number(selectedEntite);
+      if (isNaN(selectedEntiteNum)) {
+        throw new Error("ID d'entité invalide");
+      }
+  
+      // Effectuer toutes les requêtes en parallèle
+      const [
+        selectedEntiteInfo, 
+        currentEntiteData, 
+        selectedEntiteData,
+        currentHistoryRes,
+        comparedHistoryRes
+      ] = await Promise.all([
+        api.get(`/entites/${selectedEntiteNum}`).catch(() => ({ data: null })),
+        api.get(`/evaluations/latest/${user.entite_id}`).catch(() => ({ data: null })),
+        api.get(`/evaluations/latest/${selectedEntiteNum}`).catch(() => ({ data: null })),
+        api.get(`/evaluations/history?entite_id=${user.entite_id}`).catch(() => ({ data: [] })),
+        api.get(`/evaluations/history?entite_id=${selectedEntiteNum}`).catch(() => ({ data: [] }))
+      ]);
+  
+      // Vérification des réponses essentielles
+      if (!selectedEntiteInfo?.data || !currentEntiteData?.data || !selectedEntiteData?.data) {
+        throw new Error("Données de comparaison incomplètes");
+      }
+  
+      const transformDetails = (details) => {
+        if (!details) return {};
+        try {
+          if (typeof details === 'string') {
+            details = JSON.parse(details);
+          }
+          return Object.fromEntries(
+            Object.entries(details).map(([key, value]) => [
+              key,
+              typeof value === 'object' ? value.points : value
+            ])
+          );
+        } catch (err) {
+          console.error("Erreur transformation details:", err);
+          return {};
+        }
+      };
+  
+      const comparisonData = {
+        currentEntite: {
+          id: user.entite_id,
+          name: user.entite_nom || "Votre entité",
+          data: transformDetails(currentEntiteData.data?.details || currentEntiteData.data || {})
+        },
+        comparedEntite: {
+          id: selectedEntiteNum,
+          name: selectedEntiteInfo.data.nom || "Entité comparée",
+          data: transformDetails(selectedEntiteData.data?.details || selectedEntiteData.data || {})
+        },
+        categories: Object.keys(
+          transformDetails(currentEntiteData.data?.details || currentEntiteData.data || {})
+        ) || [],
+        currentHistory: currentHistoryRes?.data || [],
+        comparedHistory: comparedHistoryRes?.data || []
+      };
+  
+      // Vérification finale des données
+      if (Object.keys(comparisonData.currentEntite.data).length === 0 || 
+          Object.keys(comparisonData.comparedEntite.data).length === 0) {
+        throw new Error("Données de comparaison incomplètes");
+      }
+  
+      setComparison(comparisonData);
+  
+    } catch (err) {
+      console.error("Erreur de comparaison:", err);
+      setError(err.message || "Erreur lors de la comparaison");
+      setComparison({
+        error: err.message || "Erreur lors de la comparaison"
+      });
     } finally {
       setLoading(false);
     }
