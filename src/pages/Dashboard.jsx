@@ -787,83 +787,22 @@ export default function Dashboard() {
       return;
     }
   
-    if (!user?.entite_id) {
-      setError("Impossible d'identifier votre entité actuelle");
-      return;
-    }
-  
     setLoading(true);
     setError('');
   
     try {
-      const selectedEntiteNum = Number(selectedEntite);
-      if (isNaN(selectedEntiteNum)) {
-        throw new Error("ID d'entité invalide");
-      }
-  
-      // Effectuer toutes les requêtes en parallèle
-      const [
-        selectedEntiteInfo, 
-        currentEntiteData, 
-        selectedEntiteData,
-        currentHistoryRes,
-        comparedHistoryRes
-      ] = await Promise.all([
-        api.get(`/entites/${selectedEntiteNum}`).catch(() => ({ data: null })),
-        api.get(`/evaluations/latest/${user.entite_id}`).catch(() => ({ data: null })),
-        api.get(`/evaluations/latest/${selectedEntiteNum}`).catch(() => ({ data: null })),
-        api.get(`/evaluations/history?entite_id=${user.entite_id}`).catch(() => ({ data: [] })),
-        api.get(`/evaluations/history?entite_id=${selectedEntiteNum}`).catch(() => ({ data: [] }))
-      ]);
-  
-      // Vérification des réponses essentielles
-      if (!selectedEntiteInfo?.data || !currentEntiteData?.data || !selectedEntiteData?.data) {
-        throw new Error("Données de comparaison incomplètes");
-      }
-  
-      const transformDetails = (details) => {
-        if (!details) return {};
-        try {
-          if (typeof details === 'string') {
-            details = JSON.parse(details);
-          }
-          return Object.fromEntries(
-            Object.entries(details).map(([key, value]) => [
-              key,
-              typeof value === 'object' ? value.points : value
-            ])
-          );
-        } catch (err) {
-          console.error("Erreur transformation details:", err);
-          return {};
+      const response = await api.get('/evaluations/compare', {
+        params: {
+          entite1: user.entite_id,
+          entite2: selectedEntite
         }
-      };
+      });
   
-      const comparisonData = {
-        currentEntite: {
-          id: user.entite_id,
-          name: user.entite_nom || "Votre entité",
-          data: transformDetails(currentEntiteData.data?.details || currentEntiteData.data || {})
-        },
-        comparedEntite: {
-          id: selectedEntiteNum,
-          name: selectedEntiteInfo.data.nom || "Entité comparée",
-          data: transformDetails(selectedEntiteData.data?.details || selectedEntiteData.data || {})
-        },
-        categories: Object.keys(
-          transformDetails(currentEntiteData.data?.details || currentEntiteData.data || {})
-        ) || [],
-        currentHistory: currentHistoryRes?.data || [],
-        comparedHistory: comparedHistoryRes?.data || []
-      };
-  
-      // Vérification finale des données
-      if (Object.keys(comparisonData.currentEntite.data).length === 0 || 
-          Object.keys(comparisonData.comparedEntite.data).length === 0) {
-        throw new Error("Données de comparaison incomplètes");
+      if (!response.data.success) {
+        throw new Error(response.data.message || "Erreur lors de la comparaison");
       }
   
-      setComparison(comparisonData);
+      setComparison(response.data.data);
   
     } catch (err) {
       console.error("Erreur de comparaison:", err);
