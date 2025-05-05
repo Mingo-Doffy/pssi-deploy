@@ -507,25 +507,27 @@ const calculateDifferences = (currentDomains, comparedDomains) => {
 
 export default function ComparisonRadar({ data, loading }) {
   const theme = useTheme();
-  const [error, setError] = useState(null);
 
   if (loading) {
+    return <CircularProgress />;
+  }
+
+  if (!data || data.error) {
     return (
-      <Box sx={{ display: 'flex', justifyContent: 'center', p: 4 }}>
-        <CircularProgress size={60} />
-      </Box>
+      <Alert severity="error">
+        {data?.error || "Données de comparaison indisponibles"}
+      </Alert>
     );
   }
 
-  if (!data || !data.currentEntite || !data.comparedEntite) {
+  // Vérification plus poussée des données
+  if (!data.currentEntite?.data || !data.comparedEntite?.data ||
+      typeof data.currentEntite.data !== 'object' || 
+      typeof data.comparedEntite.data !== 'object') {
     return (
-      <Card>
-        <CardContent>
-          <Alert severity="error">
-            {data?.error || "Données de comparaison incomplètes"}
-          </Alert>
-        </CardContent>
-      </Card>
+      <Alert severity="error">
+        Structure des données de comparaison invalide
+      </Alert>
     );
   }
 
